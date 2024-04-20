@@ -61,13 +61,15 @@ purple_btn_colour = """
 
 #Inicializa o reinicia las variables del estado del juego almacenadas en el estado de sesión de Streamlit.
 mystate = st.session_state
-if "expired_cells" not in mystate: mystate.expired_cells = []
+if "expired_cells" not in mystate: mystate.expired_cells = [] #   Lista de celdas que se han presionado
+if "cont_failed_cells" not in mystate: mystate.cont_failed_cells = 0 # Contador de celdas fallidas incrementa cuando falla
 if "myscore" not in mystate: mystate.myscore = 0
 if "plyrbtns" not in mystate: mystate.plyrbtns = {}
 if "sidebar_emoji" not in mystate: mystate.sidebar_emoji = ''
 if "emoji_bank" not in mystate: mystate.emoji_bank = []
 # Configuración inicial del juego
 if "GameDetails" not in mystate: mystate.GameDetails = ['Medium', 6, 7, '']  # difficulty level, sec interval for autogen, total_cells_per_row_or_col, player name
+if "max_players_in_top" not in mystate: mystate.max_players_in_top = 4 # cantidad de jugadores en el top a mostrar
 
 # common functions
 def ReduceGapFromPageTop(wch_section = 'main page'):
@@ -132,8 +134,9 @@ def Leaderboard(what_to_do):
                 leaderboard[str(leaderboard_dict_lngth + 1)] = {'NameCountry': mystate.GameDetails[3], 'HighestScore': mystate.myscore}
                 leaderboard = dict(sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))  # sort desc
 
-                if len(leaderboard) > 4: # Cantidad de jugadores del top a mostrar
-                    for i in range(len(leaderboard)-4): leaderboard.popitem()    # rmv last kdict ey
+                if len(leaderboard) > mystate.max_players_in_top: # Cantidad de jugadores del top a mostrar
+                    for i in range(len(leaderboard)-mystate.max_players_in_top):
+                        leaderboard.popitem()    # retira los jugadores adicionales del top
 
                 json.dump(leaderboard, open(ruta_en_disco + 'leaderboard.json', 'w'))     # write file
 
@@ -142,10 +145,11 @@ def Leaderboard(what_to_do):
         if mystate.GameDetails[3] != '':       # record in leaderboard only if player name is provided
             if os.path.isfile(ruta_en_disco + 'leaderboard.json'):
                 leaderboard = json.load(open(ruta_en_disco + 'leaderboard.json'))    # read file
-                    
+
+                # Ordenar el leaderboard por puntaje más alto
                 leaderboard = dict(sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))  # sort desc
 
-                sc0, sc1, sc2, sc3, sc4 = st.columns((1,3,3,3,3))
+                sc0, sc1, sc2, sc3, sc4 = st.columns((1,3,3,3,3))  # Columnas para mostrar los primeros 4 jugadores
                 rknt = 0
                 for key in leaderboard:
                     rknt += 1
@@ -156,7 +160,7 @@ def Leaderboard(what_to_do):
                         sc2.write(f"🥈 | {leaderboard[key]['NameCountry']}: {leaderboard[key]['HighestScore']}")
                     elif rknt == 3:
                         sc3.write(f"🥉 | {leaderboard[key]['NameCountry']}: {leaderboard[key]['HighestScore']}")
-                    elif rknt == 4:
+                    elif rknt == 4: # Jugador adicional en el top 4
                         sc4.write(f"🥉 | {leaderboard[key]['NameCountry']}: {leaderboard[key]['HighestScore']}")
 
 def InitialPage():
@@ -227,6 +231,7 @@ def PressedCheck(vcell):
         else:
             mystate.plyrbtns[vcell]['isTrueFalse'] = False
             mystate.myscore -= 1  # Penalización por error
+            mystate.cont_failed_cells += 1  # Incrementa el contador de celdas fallidas
 
 def ResetBoard():
     """
@@ -276,6 +281,7 @@ def PreNewGame():
         2]  # Total de celdas por fila o columna, definido por la dificultad
     mystate.expired_cells = []  # Reinicia la lista de celdas expiradas
     mystate.myscore = 0  # Reinicia el puntaje del jugador
+    mystate.cont_failed_cells = 0 # Reinicia el contador de celdas fallidas
 
     foxes = ['😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾']
     emojis = ['😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😠', '😳', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤒']
@@ -295,6 +301,8 @@ def PreNewGame():
     # Selección de categoría de emojis según la dificultad del juego
     if mystate.GameDetails[0] == 'Easy':
         wch_bank = random.choice(['foods', 'moon', 'animals'])
+        #Asignar a mystate.emoji_bank el valor de una variable local cuyo nombre está almacenado en wch_bank
+        # locals retorna un diccionario que contiene las variables definidas en el ámbito local donde se ejecuta
         mystate.emoji_bank = locals()[wch_bank]
 
     elif mystate.GameDetails[0] == 'Medium':
@@ -393,11 +401,23 @@ def NewGame():
     st.markdown("<style> div[class^='css-1vbkxwb'] > p { font-size: 1.5rem; } </style> ", unsafe_allow_html=True)  # make button face big
 
     # Configura y muestra los botones del tablero del juego
-    for i in range(1, (total_cells_per_row_or_col+1)):
-        tlst = ([1] * total_cells_per_row_or_col) + [2] # 2 = espacio al lado derecho
+    #
+    #Configura las columnas para los botones del tablero.
+    #Cada fila del tablero de juego está compuesta por un número de columnas igual al total de celdas por fila.
+    #La variable 'tlst' define el espacio de cada columna, y luego se crea un objeto de columna para cada posición.
+
+    for i in range(1, (total_cells_per_row_or_col + 1)):
+        tlst = ([1] * total_cells_per_row_or_col) + [2]  # 2 = espacio al lado derecho
         globals()['cols' + str(i)] = st.columns(tlst)
-    
-    for vcell in range(1, (total_cells_per_row_or_col ** 2)+1):
+
+    #Itera sobre cada celda del tablero, configurando los botones y su comportamiento.
+    #'arr_ref' calcula la referencia de la fila actual basada en la celda y la cantidad de celdas por fila.
+    # 'mval' es el índice del primer elemento en la fila actual.
+    #Si un botón está presionado, muestra el resultado de la acción (correcto o incorrecto).
+    #Si no está presionado, muestra el botón para ser seleccionado.
+
+    for vcell in range(1, (total_cells_per_row_or_col ** 2) + 1):
+
         if 1 <= vcell <= (total_cells_per_row_or_col * 1):
             arr_ref = '1'
             mval = 0
@@ -454,7 +474,18 @@ def NewGame():
     st.markdown(horizontal_bar, True)
 
     # Sección de escritura de puntajes y manejo de las interacciones del tablero
-    if len(mystate.expired_cells) == (total_cells_per_row_or_col ** 2):
+    # Ha fallado a la mitad de las celdas más uno, entonces debe perder el juego
+    total_cells = total_cells_per_row_or_col ** 2
+    if mystate.cont_failed_cells >= (total_cells/2 +1):
+        st.error(f"Has perdido, fallaste {mystate.cont_failed_cells} veces")
+
+        st.snow()  # Muestra animación de nieve si el puntaje es cero o negativo
+        # Pausa antes de reiniciar o volver a la página principal
+        tm.sleep(5)
+        mystate.runpage = Main  # Cambia la página activa a la principal
+        st.rerun()  # Reinicia la aplicación Streamlit para reflejar el cambio de página
+
+    elif len(mystate.expired_cells) == (total_cells_per_row_or_col ** 2):
         # Escribir en el leaderboard si todas las celdas han sido presionadas
         Leaderboard('write')
 
@@ -484,7 +515,7 @@ def Main():
         - Ofrece un botón para comenzar un nuevo juego, que al ser presionado, invocará la preparación del juego
           y transición a la pantalla de juego activa.
         - Inicializa la página con detalles básicos y ayuda visible para el usuario.
-        """
+    """
 
     # Ajustar el estilo de la barra lateral y los botones
     st.markdown('<style>[data-testid="stSidebar"] > div:first-child {width: 310px;}</style>', unsafe_allow_html=True,)  # reduce sidebar width
