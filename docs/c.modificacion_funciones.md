@@ -1,25 +1,38 @@
 
 ## Evidencia del cambio
 > Ponga aquí evidencia con imágenes y fragmento de código
+> 
 
 #### Archivo Json guarda 4 jugadores
-
-#### Interfa gráfica muestra cuatro jugadores
+![img_1.png](img/json_4_players.png)
+#### Interfaz gráfica muestra cuatro jugadores
+![img.png](img/GUI4players.png)
 
 #### Usuario pierde el juego cuando supera un máximo posible de fallos.
+Agrega variable de sesión para contar fallos
+![cod_co.png](img/cod_variable_contar_fallos.png)
 
+Agrega aquí la lógica que aumenta la cantidad de veces fallidas
+![img_1.png](img/cod_contar_fallos.png)
+
+# Crea función para controlar si es el último turno posible
+![img_2.png](cod_funcion_ultimo_turno.png)
+# Usa la función en la funcion `NewGame`
+![img_1.png](uso_funcion_ultimo_turno.png)
+
+![img_1.png](img/Fallo_muestra_perdio.png)
 ## Encuesta de la experiencia
 Por favor, responde las siguientes preguntas basadas en tu experiencia modificando el código para incluir cuatro personas en el leaderboard en lugar de tres.
 
 **Nombre:**
 
-#### 1. ¿Cuánto tiempo te llevó entender las secciones del código relacionada con el leaderboard?
+#### 1. ¿Cuánto tiempo te llevó entender las secciones del código relacionadas con el leaderboard?
 - [ ] Menos de 10 minutos
 - [ ] Entre 10 y 30 minutos
 - [ ] Entre 30 minutos y 1 hora
 - [ ] Más de 1 hora
 
-#### 2. ¿Cuánto tiempo te llevó entender las secciones del código relacionada con hacer que el usuario pierda si supera x cantidad de turnos?
+#### 2. ¿Cuánto tiempo te llevó entender las secciones del código relacionadas con hacer que el usuario pierda si supera x cantidad de turnos?
 - [ ] Menos de 10 minutos
 - [ ] Entre 10 y 30 minutos
 - [ ] Entre 30 minutos y 1 hora

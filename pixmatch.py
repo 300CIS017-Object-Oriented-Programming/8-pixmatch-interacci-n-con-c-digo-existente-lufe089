@@ -10,8 +10,9 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title = "PixMatch", page_icon="🕹️", layout = "wide", initial_sidebar_state = "expanded")
 
 vDrive = os.path.splitdrive(os.getcwd())[0]
-if vDrive == "C:": vpth = "C:/Users/Shawn/dev/utils/pixmatch/"   # local developer's disc
-else: vpth = "./"
+#if vDrive == "C:": vpth = "C:/Users/Shawn/dev/utils/pixmatch/"   # local developer's disc
+#else:
+ruta_en_disco = "./"
 
 sbe = """<span style='font-size: 140px;
                       border-radius: 7px;
@@ -58,36 +59,36 @@ if "GameDetails" not in mystate: mystate.GameDetails = ['Medium', 6, 7, '']  # d
 def ReduceGapFromPageTop(wch_section = 'main page'):
     if wch_section == 'main page': st.markdown(" <style> div[class^='block-container'] { padding-top: 2rem; } </style> ", True) # main area
     elif wch_section == 'sidebar': st.markdown(" <style> div[class^='st-emotion-cache-10oheav'] { padding-top: 0rem; } </style> ", True) # sidebar
-    elif wch_section == 'all': 
+    elif wch_section == 'all':
         st.markdown(" <style> div[class^='block-container'] { padding-top: 2rem; } </style> ", True) # main area
         st.markdown(" <style> div[class^='st-emotion-cache-10oheav'] { padding-top: 0rem; } </style> ", True) # sidebar
-    
+
 def Leaderboard(what_to_do):
     if what_to_do == 'create':
         if mystate.GameDetails[3] != '':
-            if os.path.isfile(vpth + 'leaderboard.json') == False:
+            if os.path.isfile(ruta_en_disco + 'leaderboard.json') == False:
                 tmpdict = {}
-                json.dump(tmpdict, open(vpth + 'leaderboard.json', 'w'))     # write file
+                json.dump(tmpdict, open(ruta_en_disco + 'leaderboard.json', 'w'))     # write file
 
     elif what_to_do == 'write':
         if mystate.GameDetails[3] != '':       # record in leaderboard only if player name is provided
-            if os.path.isfile(vpth + 'leaderboard.json'):
-                leaderboard = json.load(open(vpth + 'leaderboard.json'))    # read file
+            if os.path.isfile(ruta_en_disco + 'leaderboard.json'):
+                leaderboard = json.load(open(ruta_en_disco + 'leaderboard.json'))    # read file
                 leaderboard_dict_lngth = len(leaderboard)
-                    
+
                 leaderboard[str(leaderboard_dict_lngth + 1)] = {'NameCountry': mystate.GameDetails[3], 'HighestScore': mystate.myscore}
                 leaderboard = dict(sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))  # sort desc
 
                 if len(leaderboard) > 3:
                     for i in range(len(leaderboard)-3): leaderboard.popitem()    # rmv last kdict ey
 
-                json.dump(leaderboard, open(vpth + 'leaderboard.json', 'w'))     # write file
+                json.dump(leaderboard, open(ruta_en_disco + 'leaderboard.json', 'w'))     # write file
 
     elif what_to_do == 'read':
         if mystate.GameDetails[3] != '':       # record in leaderboard only if player name is provided
-            if os.path.isfile(vpth + 'leaderboard.json'):
-                leaderboard = json.load(open(vpth + 'leaderboard.json'))    # read file
-                    
+            if os.path.isfile(ruta_en_disco + 'leaderboard.json'):
+                leaderboard = json.load(open(ruta_en_disco + 'leaderboard.json'))    # read file
+
                 leaderboard = dict(sorted(leaderboard.items(), key=lambda item: item[1]['HighestScore'], reverse=True))  # sort desc
 
                 sc0, sc1, sc2, sc3 = st.columns((2,3,3,3))
@@ -120,11 +121,11 @@ def InitialPage():
     <li style="font-size:15px";>Each of the grid buttons can only be pressed once during the entire game.</li>
     <li style="font-size:15px";>The game completes when all the grid buttons are pressed.</li>
     <li style="font-size:15px";>At the end of the game, if you have a positive score, you will have <strong>won</strong>; otherwise, you will have <strong>lost</strong>.</li>
-    </ol></span>""" 
+    </ol></span>"""
 
     sc1, sc2 = st.columns(2)
     random.seed()
-    GameHelpImg = vpth + random.choice(["MainImg1.jpg", "MainImg2.jpg", "MainImg3.jpg", "MainImg4.jpg"])
+    GameHelpImg = ruta_en_disco + random.choice(["MainImg1.jpg", "MainImg2.jpg", "MainImg3.jpg", "MainImg4.jpg"])
     GameHelpImg = Image.open(GameHelpImg).resize((550, 550))
     sc2.image(GameHelpImg, use_column_width='auto')
 
@@ -138,7 +139,7 @@ def InitialPage():
 
 def ReadPictureFile(wch_fl):
     try:
-        pxfl = f"{vpth}{wch_fl}"
+        pxfl = f"{ruta_en_disco}{wch_fl}"
         return base64.b64encode(open(pxfl, 'rb').read()).decode()
 
     except: return ""
@@ -155,7 +156,7 @@ def PressedCheck(vcell):
             if mystate.GameDetails[0] == 'Easy': mystate.myscore += 5
             elif mystate.GameDetails[0] == 'Medium': mystate.myscore += 3
             elif mystate.GameDetails[0] == 'Hard': mystate.myscore += 1
-        
+
         else:
             mystate.plyrbtns[vcell]['isTrueFalse'] = False
             mystate.myscore -= 1
@@ -189,7 +190,7 @@ def PreNewGame():
 
     foxes = ['😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾']
     emojis = ['😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😠', '😳', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤒']
-    humans = ['👶', '👧', '🧒', '👦', '👩', '🧑', '👨', '👩‍🦱', '👨‍🦱', '👩‍🦰', '‍👨', '👱', '👩', '👱', '👩‍', '👨‍🦳', '👩‍🦲', '👵', '🧓', '👴', '👲', '👳'] 
+    humans = ['👶', '👧', '🧒', '👦', '👩', '🧑', '👨', '👩‍🦱', '👨‍🦱', '👩‍🦰', '‍👨', '👱', '👩', '👱', '👩‍', '👨‍🦳', '👩‍🦲', '👵', '🧓', '👴', '👲', '👳']
     foods = ['🍏', '🍎', '🍐', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍈', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌽', '🥕', '🧄', '🧅', '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🧈', '🥞', '🧇', '🥓', '🥩', '🍗', '🍖', '🦴', '🌭', '🍔', '🍟', '🍕']
     clocks = ['🕓', '🕒', '🕑', '🕘', '🕛', '🕚', '🕖', '🕙', '🕔', '🕤', '🕠', '🕕', '🕣', '🕞', '🕟', '🕜', '🕢', '🕦']
     hands = ['🤚', '🖐', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '🤲', '🤝', '🤚🏻', '🖐🏻', '✋🏻', '🖖🏻', '👌🏻', '🤏🏻', '✌🏻', '🤞🏻', '🤟🏻', '🤘🏻', '🤙🏻', '👈🏻', '👉🏻', '👆🏻', '🖕🏻', '👇🏻', '☝🏻', '👍🏻', '👎🏻', '✊🏻', '👊🏻', '🤛🏻', '🤜🏻', '👏🏻', '🙌🏻', '🤚🏽', '🖐🏽', '✋🏽', '🖖🏽', '👌🏽', '🤏🏽', '✌🏽', '🤞🏽', '🤟🏽', '🤘🏽', '🤙🏽', '👈🏽', '👉🏽', '👆🏽', '🖕🏽', '👇🏽', '☝🏽', '👍🏽', '👎🏽', '✊🏽', '👊🏽', '🤛🏽', '🤜🏽', '👏🏽', '🙌🏽']
@@ -246,7 +247,7 @@ def NewGame():
         if st.button(f"🔙 Return to Main Page", use_container_width=True):
             mystate.runpage = Main
             st.rerun()
-    
+
     Leaderboard('read')
     st.subheader("Picture Positions:")
     st.markdown(horizontal_bar, True)
@@ -257,7 +258,7 @@ def NewGame():
     for i in range(1, (total_cells_per_row_or_col+1)):
         tlst = ([1] * total_cells_per_row_or_col) + [2] # 2 = rt side padding
         globals()['cols' + str(i)] = st.columns(tlst)
-    
+
     for vcell in range(1, (total_cells_per_row_or_col ** 2)+1):
         if 1 <= vcell <= (total_cells_per_row_or_col * 1):
             arr_ref = '1'
@@ -298,12 +299,12 @@ def NewGame():
         elif ((total_cells_per_row_or_col * 9)+1) <= vcell <= (total_cells_per_row_or_col * 10):
             arr_ref = '10'
             mval = (total_cells_per_row_or_col * 9)
-            
+
         globals()['cols' + arr_ref][vcell-mval] = globals()['cols' + arr_ref][vcell-mval].empty()
         if mystate.plyrbtns[vcell]['isPressed'] == True:
             if mystate.plyrbtns[vcell]['isTrueFalse'] == True:
                 globals()['cols' + arr_ref][vcell-mval].markdown(pressed_emoji.replace('|fill_variable|', '✅️'), True)
-            
+
             elif mystate.plyrbtns[vcell]['isTrueFalse'] == False:
                 globals()['cols' + arr_ref][vcell-mval].markdown(pressed_emoji.replace('|fill_variable|', '❌'), True)
 
@@ -338,11 +339,11 @@ def Main():
             if mystate.GameDetails[0] == 'Easy':
                 mystate.GameDetails[1] = 8         # secs interval
                 mystate.GameDetails[2] = 6         # total_cells_per_row_or_col
-            
+
             elif mystate.GameDetails[0] == 'Medium':
                 mystate.GameDetails[1] = 6         # secs interval
                 mystate.GameDetails[2] = 7         # total_cells_per_row_or_col
-            
+
             elif mystate.GameDetails[0] == 'Hard':
                 mystate.GameDetails[1] = 5         # secs interval
                 mystate.GameDetails[2] = 8         # total_cells_per_row_or_col

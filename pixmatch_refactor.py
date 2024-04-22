@@ -165,18 +165,17 @@ def InitialPage():
         st.image(sidebar_logo, use_column_width='auto')
 
     # Detalles y ayuda del juego
-    game_help_details = f"""
-    <span style="font-size: 26px;">
-    <ol>
-    <li style="font-size:15px;">La partida comienza con (a) una imagen en la barra lateral y (b) una cuadrícula de botones de imagen N x N, donde N=6:Fácil, N=7:Medio, N=8:Difícil.</li>
-    <li style="font-size:15px;">Debes coincidir la imagen de la barra lateral con un botón de la cuadrícula, presionando el botón correspondiente (lo más rápido posible).</li>
-    <li style="font-size:15px;">Cada coincidencia correcta te otorga <strong>+N</strong> puntos (donde N=5:Fácil, N=3:Medio, N=1:Difícil); cada error te resta <strong>-1</strong> punto.</li>
-    <li style="font-size:15px;">Las imágenes se regeneran dinámicamente después de un intervalo fijo en segundos (Fácil=8, Medio=6, Difícil=5). Cada regeneración implica una penalización de <strong>-1</strong> punto.</li>
-    <li style="font-size:15px;">Cada botón de la cuadrícula solo puede ser presionado una vez durante todo el juego.</li>
-    <li style="font-size:15px;">El juego termina cuando se han presionado todos los botones de la cuadrícula.</li>
-    <li style="font-size:15px;">Al final del juego, si tienes un puntaje positivo, habrás <strong>ganado</strong>; de lo contrario, habrás <strong>perdido</strong>.</li>
-    </ol></span>
-    """
+    # ViewHelp
+    hlp_dtl = f"""<span style="font-size: 26px;">
+       <ol>
+       <li style="font-size:15px";>Game play opens with (a) a sidebar picture and (b) a N x N grid of picture buttons, where N=6:Easy, N=7:Medium, N=8:Hard.</li>
+       <li style="font-size:15px";>You need to match the sidebar picture with a grid picture button, by pressing the (matching) button (as quickly as possible).</li>
+       <li style="font-size:15px";>Each correct picture match will earn you <strong>+N</strong> points (where N=5:Easy, N=3:Medium, N=1:Hard); each incorrect picture match will earn you <strong>-1</strong> point.</li>
+       <li style="font-size:15px";>The sidebar picture and the grid pictures will dynamically regenerate after a fixed seconds interval (Easy=8, Medium=6, Hard=5). Each regeneration will have a penalty of <strong>-1</strong> point</li>
+       <li style="font-size:15px";>Each of the grid buttons can only be pressed once during the entire game.</li>
+       <li style="font-size:15px";>The game completes when all the grid buttons are pressed.</li>
+       <li style="font-size:15px";>At the end of the game, if you have a positive score, you will have <strong>won</strong>; otherwise, you will have <strong>lost</strong>.</li>
+       </ol></span>"""
 
     # Configuración de columnas para mostrar las reglas del juego y una imagen de ayuda
     sc1, sc2 = st.columns(2)
@@ -185,13 +184,13 @@ def InitialPage():
     game_help_image = Image.open(game_help_image_path).resize((550, 550))
     sc2.image(game_help_image, use_column_width='auto')
 
-    sc1.subheader('Reglas e Instrucciones de Juego:')
+    sc1.subheader('Rules | Playing Instructions:')
     sc1.markdown(horizontal_bar, True)
-    sc1.markdown(game_help_details, unsafe_allow_html=True)
+    sc1.markdown(hlp_dtl, unsafe_allow_html=True)
     st.markdown(horizontal_bar, True)
 
     # Detalles del autor
-    author_details = "<strong>Juego feliz: 😎 Shawn Pereira: shawnpereira1969@gmail.com</strong>"
+    author_details = "<strong>Happy  play: 😎 Shawn Pereira: shawnpereira1969@gmail.com</strong>"
     st.markdown(author_details, unsafe_allow_html=True)
 
 def ReadPictureFile(wch_fl):
@@ -289,6 +288,8 @@ def PreNewGame():
     random.seed()
     # Selección de categoría de emojis según la dificultad del juego
     if mystate.GameDetails[0] == 'Easy':
+        # Asignar a mystate.emoji_bank el valor de una variable local cuyo nombre está almacenado en wch_bank
+        # locals retorna un diccionario que contiene las variables definidas en el ámbito local donde se ejecuta
         wch_bank = random.choice(['foods', 'moon', 'animals'])
         mystate.emoji_bank = locals()[wch_bank]
 
@@ -304,12 +305,10 @@ def PreNewGame():
     mystate.plyrbtns = {}
     for vcell in range(1, ((total_cells_per_row_or_col ** 2)+1)):
         # vcell es la clave y corresponde a cada celda individual en la cuadrícula del juego.
-        """
-        'isPressed': False: Un booleano que indica si la celda ha sido presionada. Inicialmente, está configurado en False, lo que significa que ninguna celda ha sido tocada al iniciar el juego.
-        'isTrueFalse': False: True si la acción realizada en esa celda fue correcta, False en caso contrario
-        'eMoji': '': Una cadena vacía que se usará para almacenar un emoji o símbolo que se mostrará en esa celda. Al inicio, no hay emojis asignados.
-        """
 
+        #'isPressed': False: Un booleano que indica si la celda ha sido presionada. Inicialmente, está configurado en False, lo que significa que ninguna celda ha sido tocada al iniciar el juego.
+        #'isTrueFalse': False: True si la acción realizada en esa celda fue correcta, False en caso contrario
+        #'eMoji': '': Una cadena vacía que se usará para almacenar un emoji o símbolo que se mostrará en esa celda. Al inicio, no hay emojis asignados.
         mystate.plyrbtns[vcell] = {'isPressed': False, 'isTrueFalse': False, 'eMoji': ''}
 
 def score_emoji():
@@ -387,12 +386,24 @@ def NewGame():
     # Set Board Dafaults
     st.markdown("<style> div[class^='css-1vbkxwb'] > p { font-size: 1.5rem; } </style> ", unsafe_allow_html=True)  # make button face big
 
-    # Configura y muestra los botones del tablero del juego
+    # Configura y muestra los botones del tablero del juego de forma programatrica
     for i in range(1, (total_cells_per_row_or_col+1)):
+
+        #Configura las columnas para los botones del tablero.
+        #Cada fila del tablero de juego está compuesta por un número de columnas igual al total de celdas por fila.
+        #La variable 'tlst' define el espacio de cada columna, y luego se crea un objeto de columna para cada posición.
+
         tlst = ([1] * total_cells_per_row_or_col) + [2] # 2 = espacio al lado derecho
         globals()['cols' + str(i)] = st.columns(tlst)
     
     for vcell in range(1, (total_cells_per_row_or_col ** 2)+1):
+
+        #Itera sobre cada celda del tablero, configurando los botones y su comportamiento.
+        #'arr_ref' calcula la referencia de la fila actual basada en la celda y la cantidad de celdas por fila.
+        #'mval' es el índice del primer elemento en la fila actual.
+        #Si un botón está presionado, muestra el resultado de la acción (correcto o incorrecto).
+        #Si no está presionado, muestra el botón para ser seleccionado.
+
         if 1 <= vcell <= (total_cells_per_row_or_col * 1):
             arr_ref = '1'
             mval = 0
